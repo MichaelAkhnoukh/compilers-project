@@ -2,8 +2,12 @@
 #include<stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstring>
+#include <cstdarg>
+#include <regex>
+
 using namespace std;
+
 typedef enum{START,INCOMMENT,INID,INOPERATION,INNUM,DONE}States;
 string ReservedKeywords [8]={"if","then","else","end","repeat","until","read","write"};
 char SpecialSymbols[10]={'+','-','*','/','=','<','(',')',';',':'};
@@ -51,6 +55,7 @@ int Scanner(string line){
 			state = START;
 			break;
 		}
+<<<<<<< HEAD
 			
 			
 	}
@@ -68,13 +73,47 @@ void get(const char *input){
 			for(int k=0;input[k]!=0;k++){
 				if(input[k]==SpecialSymbols[i][j]){
 
-				}
-			}
-			printf("%c",SpecialSymbols[i][j]);
-			fflush(stdout);
-		}
-	}
+typedef struct {
+    unsigned char state;
+    unsigned char tokentype;
+    unsigned char tokenvalue;
+
+} jkj;
+
+void get(const char *input) {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; SpecialSymbols[i][j] != 0; j++) {
+            for (int k = 0; input[k] != 0; k++) {
+                if (input[k] == SpecialSymbols[i][j]) {
+
+                }
+            }
+            printf("%c", SpecialSymbols[i][j]);
+            fflush(stdout);
+        }
+    }
 }
+
+
+string *splitLine(string &line) {
+//    line = regex_replace(line,regex("\\{.*\\}")," ");
+    string *words = new string[100];
+    char *buffer = new char[line.length() + 1];
+    strcpy(buffer, line.c_str());
+    char *wordContext;
+    const char *wordSeparators = " +-*/=<();:=";
+    char *word = strtok_r(buffer, wordSeparators, &wordContext);
+    int i = 0;
+    while (word) {
+        words[i] = word;
+        word = strtok_r(NULL, wordSeparators, &wordContext);
+        i++;
+    }
+    delete[] buffer;
+    return words;
+}
+
+
 //void getInput()
 int main(int argc, char *argv[]){
 //	for(int i=0;i<10;i++){
@@ -89,6 +128,7 @@ int main(int argc, char *argv[]){
 	while (getline(inFile,str)){
 		Scanner(str);
 		}
+
 
 
 }
