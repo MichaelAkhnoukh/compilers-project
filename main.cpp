@@ -63,14 +63,14 @@ int Scanner(string line){
 				
 			}
 			isAssignment ? cout << SpecialSymbols[i] << '=' : cout << SpecialSymbols[i];
-			cout << " " << SpecialSymbolsTokens[i];
+			cout << " " << SpecialSymbolsTokens[i]<<endl;
 			state = START;
 			break;
 		//Ready to print
 		case INNUM:
 			while (line[index]!=NULL&&isdigit(line[index]))
 				cout << line[index++];
-			cout << ",number";
+			cout << ",number\n";
 			state = START;
 			break;
 		}
