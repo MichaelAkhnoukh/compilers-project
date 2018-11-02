@@ -67,11 +67,6 @@ typedef struct{
 	unsigned char tokenvalue;
 
 }jkj;
-void get(const char *input){
-	for(int i=0;i<10;i++){
-		for(int j=0;SpecialSymbols[i][j]!=0;j++){
-			for(int k=0;input[k]!=0;k++){
-				if(input[k]==SpecialSymbols[i][j]){
 
 typedef struct {
     unsigned char state;
