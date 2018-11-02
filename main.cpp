@@ -4,78 +4,60 @@
 #include <fstream>
 #include <string>
 using namespace std;
-typedef enum{START,INCOMMENT,INID,INASSIGN,INNUM,DONE}States;
+typedef enum{START,INCOMMENT,INID,INOPERATION,INNUM,DONE}States;
 string ReservedKeywords [8]={"if","then","else","end","repeat","until","read","write"};
-string SpecialSymbols [12]={"+","-","*","/","=","<","(",")",";",":=","{","}"};
+char SpecialSymbols[10]={'+','-','*','/','=','<','(',')',';',':'};
+string SpecialSymbolsTokens[10] = { "Addition","Subtraction","Multiply","Division","LessThan","OpenPrackrt","ClosePracket","EOL","Assignment" };
+
 typedef struct {
 
 };
-int Scanner(char c){
+int Scanner(string line){
 	static int state=START;
+	int index = 0;
 	bool save;
-	switch (state){
-	case START:
-		if (isdigit(c))
-			state = INNUM;
-		else if (isalpha(c))
-			state = INID;
-		else if (c == ':')
-			state = INASSIGN;
-		else if ((c == ' ') || (c == '\t') || (c == '\n'))
-			save = false;
-		else if (c == '{')
-		{ save = false;
-			state = INCOMMENT;
-		}
-		else
-		{ state = DONE;
-			switch (c)
-			{ case EOF:
-					save = false;
-					currentToken = ENDFILE;
-					break;
-				case '=':
-					currentToken = EQ;
-					break;
-				case '<':
-					currentToken = LT;
-					break;
-				case '+':
-					currentToken = PLUS;
-					break;
-				case '-':
-					currentToken = MINUS;
-					break;
-				case '*':
-					currentToken = TIMES;
-					break;
-				case '/':
-					currentToken = OVER;
-					break;
-				case '(':
-					currentToken = LPAREN;
-					break;
-				case ')':
-					currentToken = RPAREN;
-					break;
-				case ';':
-					currentToken = SEMI;
-					break;
-				default:
-					currentToken = ERROR;
-					break;
+	while(line[index]!=NULL){
+		switch (state) {
+		case START:
+			//As long As we have white spaces do nothing
+			while (line[index] != NULL && ((line[index] == ' ') || (line[index] == '\t')))
+				index++;
+			//indicates comment beginning
+			if (line[index] == '{')
+				state = INCOMMENT;
+			//indicates that we have either reserved keyword or identifier
+			else if (isalpha(line[index]))
+				state = INID;
+			//indicates that we have most segnificant bit of a number
+			else if (isdigit(line[index]))
+				state = INNUM;
+			//indicates that we have operation like :=, +, - 
+			else
+				state = INOPERATION;
+			break;
+		case INCOMMENT:
+			while (line[index] != NULL&&line[index] != '}')
+				index++;
+			if (line[index] == '}')
+				state = START;
+			break;
+		case INID:
+			break;
+		case INOPERATION:
+			
+			for (int i = 0; i < 10; i++) {
+				if (line[index] == SpecialSymbols[i] && SpecialSymbols[i] == ':')
+					i += 2;
+				else
+					i++;
+
+				}
+			}
+			break;
+		/*case DONE:
+			break;*/
 			}
 		}
-		break;
-	case INCOMMENT:
-		break;
-	case INID:
-		break;
-	case INASSIGN:
-		break;
-	case DONE:
-		break;
-	}
 
 
 }
@@ -110,12 +92,8 @@ int main(int argc, char *argv[]){
     ifstream inFile("./TinySample.txt");
 	string str;
 	while (getline(inFile,str)){
-		cout << str << endl;
-		if(str==""){
-			cout << "new line" << endl;
+		Scanner(str);
 		}
 
-	}
 
 }
-
