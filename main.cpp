@@ -51,11 +51,11 @@ int Scanner(string line){
 				i++;
 				//the assignment operator has : & = (2 char in the string)
 				if (line[index] == SpecialSymbols[i] && SpecialSymbols[i] == ':')
+					i++;
 			}
 			state = START;
 			break;
 		}
-<<<<<<< HEAD
 			
 			
 	}
