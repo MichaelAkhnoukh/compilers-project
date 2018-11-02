@@ -17,7 +17,6 @@ string SpecialSymbolsTokens[10] = { "Addition","Subtraction","Multiply","Divisio
 int Scanner(string line){
 	static int state=START;
 	int index = 0;
-	bool save;
 	while(line[index]!=NULL){
 		switch (state) {
 		case START:
@@ -37,6 +36,7 @@ int Scanner(string line){
 			else
 				state = INOPERATION;
 			break;
+		//Ready and Finalized
 		case INCOMMENT:
 			while (line[index] != NULL&&line[index] != '}')
 				index++;
@@ -46,13 +46,31 @@ int Scanner(string line){
 		case INID:
 			//Call Michael's Function
 			break;
+		//Ready To print
 		case INOPERATION:
-			for (int i = 0; i < 10; i++) {
-				i++;
+			int i;
+			bool isAssignment = false;
+			for (i = 0; i < 10; i++) {
 				//the assignment operator has : & = (2 char in the string)
-				if (line[index] == SpecialSymbols[i] && SpecialSymbols[i] == ':')
-					i++;
+				if (line[index] == SpecialSymbols[i]) {
+					index++;
+					if (SpecialSymbols[i] == ':') {
+						index ++;
+						isAssignment = true;
+					}
+					break;
+				}
+				
 			}
+			isAssignment ? cout << SpecialSymbols[i] << '=' : cout << SpecialSymbols[i];
+			cout << " " << SpecialSymbolsTokens[i];
+			state = START;
+			break;
+		//Ready to print
+		case INNUM:
+			while (line[index]!=NULL&&isdigit(line[index]))
+				cout << line[index++];
+			cout << ",number";
 			state = START;
 			break;
 		}
