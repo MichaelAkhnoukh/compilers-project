@@ -33,6 +33,9 @@ void Scanner(string line){
 			//indicates that we have most segnificant bit of a number
 			else if (isdigit(line[index]))
 				state = INNUM;
+			else if (line == "}") {
+				return;
+			}
 			//indicates that we have operation like :=, +, - 
 			else
 				state = INOPERATION;
@@ -41,10 +44,17 @@ void Scanner(string line){
 		case INCOMMENT:
 			while (line[index]!=NULL&&line[index] != '}')
 				index++;
-			if (line[index] == '}')
+			if (line[index] == '}' && line.length() < 2)
 				//line = regex_replace(line, regex("\\{.*\\}"), " ");
+			{
+				state = START;
+			}
+			else if(line[index] == '}' && line.length() > 2)
+			{
 				index++;
 				state = START;
+			}
+				
 			break;
 		case INID:
 			//Call Michael's Function
