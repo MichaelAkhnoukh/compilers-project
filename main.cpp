@@ -9,9 +9,7 @@ string ReservedKeywords [8]={"if","then","else","end","repeat","until","read","w
 char SpecialSymbols[10]={'+','-','*','/','=','<','(',')',';',':'};
 string SpecialSymbolsTokens[10] = { "Addition","Subtraction","Multiply","Division","LessThan","OpenPrackrt","ClosePracket","EOL","Assignment" };
 
-typedef struct {
 
-};
 int Scanner(string line){
 	static int state=START;
 	int index = 0;
@@ -42,25 +40,22 @@ int Scanner(string line){
 				state = START;
 			break;
 		case INID:
+			//Call Michael's Function
 			break;
 		case INOPERATION:
-			
 			for (int i = 0; i < 10; i++) {
+				i++;
+				//the assignment operator has : & = (2 char in the string)
 				if (line[index] == SpecialSymbols[i] && SpecialSymbols[i] == ':')
-					i += 2;
-				else
-					i++;
-
-				}
 			}
+			state = START;
 			break;
-		/*case DONE:
-			break;*/
-			}
 		}
-
-
+			
+			
+	}
 }
+
 typedef struct{
 	unsigned char state;
 	unsigned char tokentype;
