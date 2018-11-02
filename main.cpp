@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <iostream>
+#include <fstream>
+#include <string>
 using namespace std;
 typedef enum{START,INCOMMENT,INID,INASSIGN,DONE}States;
 unsigned char ReservedKeywords [][8]={"if","then","else","end","repeat","until","read","write"};
@@ -41,8 +43,8 @@ void get(const char *input){
 		}
 	}
 }
-void getInput()
-int main(){
+//void getInput()
+int main(int argc, char *argv[]){
 	for(int i=0;i<10;i++){
 		for(int j=0;SpecialSymbols[i][j]!=0;j++){
 			printf("%c",SpecialSymbols[i][j]);
@@ -50,5 +52,11 @@ int main(){
 		}
 		printf("\n");
 	}
+    ifstream inFile("./test");
+	string str;
+	while (getline(inFile,str)){
+		cout << str << endl;
+	}
+
 }
 
