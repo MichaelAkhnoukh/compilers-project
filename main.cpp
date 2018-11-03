@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <regex>
+#include<cstdio>
 
 using namespace std;
 
@@ -135,7 +136,7 @@ int main(int argc, char *argv[]){
 	while (getline(inFile,str)){
 		Scanner(str);
 		}
-	
-
-
+	cout << "\nEnter 'q' to exit:";
+	while (getchar() != 'q');
+		//cin.ignore();
 }
