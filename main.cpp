@@ -26,7 +26,7 @@ void Scanner(string line){
 				index++;
 			//indicates comment beginning
 			if (line[index] == '{') {
-			state = INCOMMENT;
+				state = INCOMMENT;
 			}
 			//indicates that we have either reserved keyword or identifier
 			else if (isalpha(line[index]))
@@ -34,28 +34,20 @@ void Scanner(string line){
 			//indicates that we have most segnificant bit of a number
 			else if (isdigit(line[index]))
 				state = INNUM;
-			else if (line == "}") {
-				return;
-			}
 			//indicates that we have operation like :=, +, - 
+			else if (line[index] == '}')
+				index++;
 			else
 				state = INOPERATION;
 			break;
+
 		//Ready and Finalized
 		case INCOMMENT:
-			while (line[index]!=NULL&&line[index] != '}')
+			while (line[index]!=NULL&&line.length()>=1&&line[index] != '}')
 				index++;
-			if (line[index] == '}' && line.length() < 2)
+			if (line[index] == '}')
 				//line = regex_replace(line, regex("\\{.*\\}"), " ");
-			{
 				state = START;
-			}
-			else if(line[index] == '}' && line.length() > 2)
-			{
-				index++;
-				state = START;
-			}
-				
 			break;
 		case INID:
 			//Call Michael's Function
