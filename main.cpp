@@ -27,6 +27,7 @@ string *getWords(string &line);
 void Scanner(string line) {
     static int state = START;
     int index = 0;
+    static int j = 0;
     while (line[index] != NULL) {
         switch (state) {
             case START:
@@ -61,20 +62,20 @@ void Scanner(string line) {
             case INID: {
                 //Call Michael's Function
                 string *s = getWords(line);
-                for (int j = 0; j < NUM_RESERVED_KEYWORDS; ++j) {
-                    if(!s[j].empty()){
+                while (j < NUM_RESERVED_KEYWORDS && !s[j].empty()) {
                         cout << s[j] << ",";
                         if (isReserved(s[j])) {
                             cout << "Keyword" << endl;
                         } else {
                             cout << "Identifier" << endl;
                         }
-                    }
+                        j++;
+                        break;
                 }
                 while (isalpha(line[index]))
                     index++;
                 state = START;
-                return;
+                continue;
             }
                 //Ready To print
             case INOPERATION: {
@@ -109,16 +110,18 @@ void Scanner(string line) {
 
 
     }
+    state = START;
+    j = 0;
 }
 
 
 string *getWords(string &line) {
     line = regex_replace(line, regex("\\{.*\\}"), " ");
-    string *words = new string[10];
+    string *words = new string[line.length() + 1];
     char *buffer = new char[line.length() + 1];
     strcpy(buffer, line.c_str());
     char *wordContext;
-    const char *wordSeparators = " +-=<();:=01233456789";
+    const char *wordSeparators = " +-=<();:=*01233456789";
     char *word = strtok_r(buffer, wordSeparators, &wordContext);
     int i = 0;
     while (word) {
@@ -140,7 +143,7 @@ bool isReserved(string &s) {
 }
 
 int main(int argc, char *argv[]) {
-    freopen("output.txt","w",stdout);
+    //freopen("output.txt","w",stdout);
     ifstream inFile("./TinySample.txt");
     string str;
     while (getline(inFile, str)) {
