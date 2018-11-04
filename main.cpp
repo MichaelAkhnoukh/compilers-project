@@ -143,7 +143,7 @@ bool isReserved(string &s) {
 }
 
 int main(int argc, char *argv[]) {
-    //freopen("output.txt","w",stdout);
+    freopen("output.txt","w",stdout);
     ifstream inFile("./TinySample.txt");
     string str;
     while (getline(inFile, str)) {
