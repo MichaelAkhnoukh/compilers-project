@@ -22,12 +22,12 @@ string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "
 
 bool isReserved(string &s);
 
-string *getWords(string &line);
+string *getWords(string line);
 
 void Scanner(string line) {
     static int state = START;
     int index = 0;
-    static int j = 0;
+    int j = 0;
     while (line[index] != NULL) {
         switch (state) {
             case START:
@@ -110,12 +110,11 @@ void Scanner(string line) {
 
 
     }
-    state = START;
     j = 0;
 }
 
 
-string *getWords(string &line) {
+string *getWords(string line) {
     line = regex_replace(line, regex("\\{.*\\}"), " ");
     string *words = new string[line.length() + 1];
     char *buffer = new char[line.length() + 1];
