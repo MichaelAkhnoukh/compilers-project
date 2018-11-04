@@ -79,9 +79,11 @@ void Scanner(string line) {
             case INOPERATION: {
                 int i;
                 bool isAssignment = false;
+				bool validSymbol = false;
                 for (i = 0; i < NUM_SPECIAL_SYMBOLS; i++) {
                     //the assignment operator has : & = (2 char in the string)
                     if (line[index] == SpecialSymbols[i]) {
+						validSymbol = true;
                         index++;
                         if (SpecialSymbols[i] == ':') {
                             index++;
@@ -91,9 +93,12 @@ void Scanner(string line) {
                     }
 
                 }
-                (isAssignment) ? cout << SpecialSymbols[i] << "=,Assignment\n" : cout << SpecialSymbols[i] << ","
-                                                                                      << SpecialSymbolsTokens[i]
-                                                                                      << endl;
+				if (validSymbol)
+					(isAssignment) ? cout << SpecialSymbols[i] << "=,Assignment\n" : cout << SpecialSymbols[i] << ","
+																							<< SpecialSymbolsTokens[i]
+																							<< endl;
+				else
+					index++;
                 state = START;
                 break;
             }
