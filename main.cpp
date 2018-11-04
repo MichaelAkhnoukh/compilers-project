@@ -17,6 +17,8 @@ string ReservedKeywords [NUM_RESERVED_KEYWORDS]={"if","then","else","end","repea
 char SpecialSymbols[NUM_SPECIAL_SYMBOLS]={'+','-','*','/','<','(',')',';',':','='};
 string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = { "Addition","Subtraction","Multiply","Division","LessThan","OpenPrackrt","ClosePracket","EOL","Assignment","Comparison" };
 
+bool isReserved(string& s);
+string *getWords(string &line);
 
 void Scanner(string line){
 	static int state=START;
@@ -90,8 +92,8 @@ void Scanner(string line){
 	}
 }
 
-/*
-string *splitLine(string &line) {
+
+string *getWords(string &line) {
 //    line = regex_replace(line,regex("\\{.*\\}")," ");
     string *words = new string[100];
     char *buffer = new char[line.length() + 1];
@@ -107,8 +109,16 @@ string *splitLine(string &line) {
     }
     delete[] buffer;
     return words;
-}*/
+}
 
+bool isReserved(string& s){
+    for (int i = 0; i < NUM_RESERVED_KEYWORDS; ++i) {
+        if (ReservedKeywords[i] == s) {
+            return true;
+        }
+    }
+    return false;
+}
 
 int main(int argc, char *argv[]){
    ifstream inFile("./TinySample.txt");
