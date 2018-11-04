@@ -7,12 +7,15 @@
 #include <regex>
 #include<cstdio>
 
+#define NUM_RESERVED_KEYWORDS 8
+#define NUM_SPECIAL_SYMBOLS 10
+
 using namespace std;
 
 typedef enum{START,INCOMMENT,INID,INOPERATION,INNUM,DONE}States;
-string ReservedKeywords [8]={"if","then","else","end","repeat","until","read","write"};
-char SpecialSymbols[10]={'+','-','*','/','<','(',')',';',':','='};
-string SpecialSymbolsTokens[10] = { "Addition","Subtraction","Multiply","Division","LessThan","OpenPrackrt","ClosePracket","EOL","Assignment","Comparison" };
+string ReservedKeywords [NUM_RESERVED_KEYWORDS]={"if","then","else","end","repeat","until","read","write"};
+char SpecialSymbols[NUM_SPECIAL_SYMBOLS]={'+','-','*','/','<','(',')',';',':','='};
+string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = { "Addition","Subtraction","Multiply","Division","LessThan","OpenPrackrt","ClosePracket","EOL","Assignment","Comparison" };
 
 
 void Scanner(string line){
@@ -87,13 +90,6 @@ void Scanner(string line){
 	}
 }
 
-typedef struct{
-	unsigned char state;
-	unsigned char tokentype;
-	unsigned char tokenvalue;
-
-}jkj;
-
 /*
 string *splitLine(string &line) {
 //    line = regex_replace(line,regex("\\{.*\\}")," ");
@@ -114,15 +110,7 @@ string *splitLine(string &line) {
 }*/
 
 
-//void getInput()
 int main(int argc, char *argv[]){
-//	for(int i=0;i<10;i++){
-//		for(int j=0;SpecialSymbols[i][j]!=0;j++){
-//			printf("%c",SpecialSymbols[i][j]);
-//			fflush(stdout);
-//		}
-//		printf("\n");
-//	}
    ifstream inFile("./TinySample.txt");
 	string str;
 	while (getline(inFile,str)){
