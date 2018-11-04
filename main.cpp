@@ -140,12 +140,13 @@ bool isReserved(string &s) {
 }
 
 int main(int argc, char *argv[]) {
+    freopen("output.txt","w",stdout);
     ifstream inFile("./TinySample.txt");
     string str;
     while (getline(inFile, str)) {
         Scanner(str);
     }
-    cout << "\nEnter 'q' to exit:";
-    while (getchar() != 'q');
+//    cout << "\nEnter 'q' to exit:";
+//    while (getchar() != 'q');
     //cin.ignore();
 }
