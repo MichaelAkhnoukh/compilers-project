@@ -62,7 +62,6 @@ void Scanner(string line) {
             case INID: {
                 //Call Michael's Function
                 string *s = getWords(line);
-                while (j < NUM_RESERVED_KEYWORDS && !s[j].empty()) {
                         cout << s[j] << ",";
                         if (isReserved(s[j])) {
                             cout << "Keyword" << endl;
@@ -70,8 +69,7 @@ void Scanner(string line) {
                             cout << "Identifier" << endl;
                         }
                         j++;
-                        break;
-                }
+
                 while (isalpha(line[index]))
                     index++;
                 state = START;
