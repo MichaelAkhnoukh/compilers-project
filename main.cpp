@@ -8,24 +8,32 @@
 #include<cstdio>
 
 #define NUM_RESERVED_KEYWORDS 8
-#define NUM_SPECIAL_SYMBOLS 10
+#define NUM_SPECIAL_SYMBOLS 11
 
 using namespace std;
 
 typedef enum {
-    START, INCOMMENT, INID, INOPERATION, INNUM, DONE
+    START, INCOMMENT, INID, INOPERATION, INNUM, DONE, ERROR
 } States;
+typedef struct {
+    string tokenValue;
+    string tokenType;
+} tinyToken;
 string ReservedKeywords[NUM_RESERVED_KEYWORDS] = {"if", "then", "else", "end", "repeat", "until", "read", "write"};
-char SpecialSymbols[NUM_SPECIAL_SYMBOLS] = {'+', '-', '*', '/', '<', '(', ')', ';', ':', '='};
+char SpecialSymbols[NUM_SPECIAL_SYMBOLS] = {'+', '-', '*', '/', '<', '>', '(', ')', ';', ':', '='};
 string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "Multiply", "Division", "LessThan",
-                                                    "OpenPrackrt", "ClosePracket", "EOL", "Assignment", "Comparison"};
+                                                    "GreaterThan", "OpenPrackrt", "ClosePracket", "EOL", "Assignment",
+                                                    "Comparison"};
 
 bool isReserved(string &s);
 
 string *getWords(string line);
 
+//TODO modifiy Scanner function to return array of tokens
 void Scanner(string line) {
     static int state = START;
+    static tinyToken tokens[100];
+    static int tokenIndex = 0;
     int index = 0;
     int j = 0;
     while (line[index] != NULL) {
@@ -62,28 +70,29 @@ void Scanner(string line) {
             case INID: {
                 //Call Michael's Function
                 string *s = getWords(line);
-                        cout << s[j] << ",";
-                        if (isReserved(s[j])) {
-                            cout << "Keyword" << endl;
-                        } else {
-                            cout << "Identifier" << endl;
-                        }
-                        j++;
-
-                while (isalpha(line[index]))
+                cout << s[j] << ",";
+                if (isReserved(s[j])) {
+                    cout << "Keyword" << endl;
+                } else {
+                    cout << "Identifier" << endl;
+                }
+                j++;
+                //TODO accept mixed chars and letters identifiers
+                while (isalpha(line[index]) | isdigit(line[index]))
                     index++;
                 state = START;
                 continue;
             }
                 //Ready To print
             case INOPERATION: {
+                //TODO check support for <= and >= against :=
                 int i;
                 bool isAssignment = false;
-				bool validSymbol = false;
+                bool validSymbol = false;
                 for (i = 0; i < NUM_SPECIAL_SYMBOLS; i++) {
                     //the assignment operator has : & = (2 char in the string)
                     if (line[index] == SpecialSymbols[i]) {
-						validSymbol = true;
+                        validSymbol = true;
                         index++;
                         if (SpecialSymbols[i] == ':') {
                             index++;
@@ -93,22 +102,33 @@ void Scanner(string line) {
                     }
 
                 }
-				if (validSymbol)
-					(isAssignment) ? cout << SpecialSymbols[i] << "=,Assignment\n" : cout << SpecialSymbols[i] << ","
-																							<< SpecialSymbolsTokens[i]
-																							<< endl;
-				else
-					index++;
+                if (validSymbol)
+                    (isAssignment) ? cout << SpecialSymbols[i] << "=,Assignment\n" : cout << SpecialSymbols[i] << ","
+                                                                                          << SpecialSymbolsTokens[i]
+                                                                                          << endl;
+                else
+                    index++;
                 state = START;
                 break;
             }
                 //Ready to print
             case INNUM:
-                while (line[index] != NULL && isdigit(line[index]))
+                //Accept floating point numbers ignoring a second decimal point if exisits
+                tokens[tokenIndex].tokenType = "number";
+                bool isFloat = false;
+                while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
+                    if (line[index] == '.') {
+                        isFloat = true;
+                    }
+                    tokens[tokenIndex].tokenType.push_back(line[index]);
                     cout << line[index++];
+                }
+
                 cout << ",number\n";
                 state = START;
-                break;
+                return;
+                //TODO DONE state
+                //TODO ERROR state
         }
 
 
@@ -118,7 +138,7 @@ void Scanner(string line) {
 
 
 string *getWords(string line) {
-    line = regex_replace(line, regex("\\{.*\\}"), " ");
+    line = regex_replace(line, regex("\\{.*\\}"), "");
     string *words = new string[line.length() + 1];
     char *buffer = new char[line.length() + 1];
     strcpy(buffer, line.c_str());
@@ -145,7 +165,7 @@ bool isReserved(string &s) {
 }
 
 int main(int argc, char *argv[]) {
-    freopen("output.txt","w",stdout);
+//    freopen("output.txt","w",stdout);
     ifstream inFile("./TinySample.txt");
     string str;
     while (getline(inFile, str)) {
