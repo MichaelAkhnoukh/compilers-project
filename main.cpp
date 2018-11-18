@@ -15,24 +15,33 @@ using namespace std;
 typedef enum {
     START, INCOMMENT, INID, INOPERATION, INNUM, DONE, ERROR
 } States;
+
 typedef struct {
     string tokenValue;
     string tokenType;
 } tinyToken;
+
 string ReservedKeywords[NUM_RESERVED_KEYWORDS] = {"if", "then", "else", "end", "repeat", "until", "read", "write"};
+
 char SpecialSymbols[NUM_SPECIAL_SYMBOLS] = {'+', '-', '*', '/', '<', '>', '(', ')', ';', ':', '='};
+
 string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "Multiply", "Division", "LessThan",
-                                                    "GreaterThan", "OpenPrackrt", "ClosePracket", "EOL", "Assignment",
+                                                    "GreaterThan", "OpenBracket", "CloseBracket", "EOL", "Assignment",
                                                     "Comparison"};
 
 bool isReserved(string &s);
 
+int isValidSymbole(char &c);
+
 string *getWords(string line);
+
+void addToken(string &type, string &value);
+
+tinyToken tokens[100];
 
 //TODO modifiy Scanner function to return array of tokens
 void Scanner(string line) {
     static int state = START;
-    static tinyToken tokens[100];
     static int tokenIndex = 0;
     int index = 0;
     int j = 0;
@@ -63,8 +72,7 @@ void Scanner(string line) {
             case INCOMMENT:
                 while (line[index] != NULL && line.length() >= 1 && line[index] != '}')
                     index++;
-                if (line[index] == '}')
-                    //line = regex_replace(line, regex("\\{.*\\}"), " ");
+                if (line[index] == '}') //TODO handle if closing brace is missing
                     state = START;
                 break;
             case INID: {
@@ -81,52 +89,39 @@ void Scanner(string line) {
                 while (isalpha(line[index]) | isdigit(line[index]))
                     index++;
                 state = START;
-                continue;
+                break;
             }
                 //Ready To print
             case INOPERATION: {
-                //TODO check support for <= and >= against :=
-                int i;
-                bool isAssignment = false;
-                bool validSymbol = false;
-                for (i = 0; i < NUM_SPECIAL_SYMBOLS; i++) {
-                    //the assignment operator has : & = (2 char in the string)
-                    if (line[index] == SpecialSymbols[i]) {
-                        validSymbol = true;
-                        index++;
-                        if (SpecialSymbols[i] == ':') {
-                            index++;
-                            isAssignment = true;
+                bool compoundOP = false;
+                if (isValidSymbole(line[index]) > 0) {
+                    cout << line[index];
+                    if (line[index] == ':' || line[index] == '<' || line[index] == '>') {
+                        if (line[index + 1] == '=') {
+                            compoundOP = true;
+                            cout << '=';
                         }
-                        break;
                     }
-
+                    cout << ',' << SpecialSymbolsTokens[isValidSymbole(line[index])] << endl;
                 }
-                if (validSymbol)
-                    (isAssignment) ? cout << SpecialSymbols[i] << "=,Assignment\n" : cout << SpecialSymbols[i] << ","
-                                                                                          << SpecialSymbolsTokens[i]
-                                                                                          << endl;
-                else
-                    index++;
+                (compoundOP) ? index += 2 : index++;
                 state = START;
                 break;
             }
                 //Ready to print
             case INNUM:
-                //Accept floating point numbers ignoring a second decimal point if exisits
-                tokens[tokenIndex].tokenType = "number";
+                //Accept floating point numbers ignoring a second decimal point if exists
                 bool isFloat = false;
                 while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
                     if (line[index] == '.') {
                         isFloat = true;
                     }
-                    tokens[tokenIndex].tokenType.push_back(line[index]);
+                    //don't forget to increment the index after removing the cout
                     cout << line[index++];
                 }
-
                 cout << ",number\n";
                 state = START;
-                return;
+                break;
                 //TODO DONE state
                 //TODO ERROR state
         }
@@ -162,6 +157,25 @@ bool isReserved(string &s) {
         }
     }
     return false;
+}
+
+//checks if the symbol is valid
+//return -1 in case of not valid
+//return the position of the symbols token if valid
+int isValidSymbole(char &c) {
+    for (int i = 0; i < NUM_SPECIAL_SYMBOLS; ++i) {
+        if (SpecialSymbols[i] == c) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void addToken(string &type, string &value) {
+    static int tokenIndex = 0;
+    tokens[tokenIndex].tokenType = type;
+    tokens[tokenIndex].tokenValue = value;
+    tokenIndex++;
 }
 
 int main(int argc, char *argv[]) {
