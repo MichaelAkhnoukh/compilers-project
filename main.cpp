@@ -43,7 +43,7 @@ tinyToken *tokens = new tinyToken[100];
 void Scanner(string line) {
     static int state = START;
     int index = 0;
-    string tokenType = "",tokenValue = "";
+    string tokenType = "", tokenValue = "";
     int j = 0;
     while (line[index] != NULL) {
         switch (state) {
@@ -89,7 +89,7 @@ void Scanner(string line) {
                 while (isalpha(line[index]) | isdigit(line[index]))
                     index++;
                 state = START;
-                delete [] s;
+                delete[] s;
                 break;
             }
                 //Ready To print
@@ -109,7 +109,7 @@ void Scanner(string line) {
                     }
 //                    cout << ',' << SpecialSymbolsTokens[isValidSymbole(line[index])] << endl;
                     tokenType = SpecialSymbolsTokens[isValidSymbole(line[index])];
-                    addToken(tokenType,tokenValue);
+                    addToken(tokenType, tokenValue);
                 }
                 (compoundOP) ? index += 2 : index++;
                 state = START;
@@ -183,20 +183,21 @@ int isValidSymbole(char &c) {
     return -1;
 }
 
-//TODO fix memory leak by not deallocating the temp pointer
 void addToken(const string &type, string &value) {
     static int tokenIndex = 0;
-    static int size = 100;
+    static int size = 10;
     tokens[tokenIndex].tokenType = type;
     tokens[tokenIndex].tokenValue = value;
     tokenIndex++;
     //Automatically resize the tokens array if its full
-    if (tokenIndex >= size){
+    if (tokenIndex >= size) {
         size = size * 2;
         tinyToken *temp = new tinyToken[size];
-        memmove(temp, tokens, sizeof(tokens[0]) * tokenIndex);
+        copy(tokens, tokens + (size / 2), temp);
+        delete[] tokens;
         tokens = new tinyToken[size * 2];
-        memmove(tokens,temp,sizeof(temp[0]) * tokenIndex);
+        copy(temp, temp + (size / 2), tokens);
+        delete[] temp;
     }
 }
 
@@ -210,4 +211,5 @@ int main(int argc, char *argv[]) {
 //    cout << "\nEnter 'q' to exit:";
 //    while (getchar() != 'q');
     //cin.ignore();
+    delete[] tokens;
 }
