@@ -35,15 +35,15 @@ int isValidSymbole(char &c);
 
 string *getWords(string line);
 
-void addToken(string &type, string &value);
+void addToken(const string &type, string &value);
 
-tinyToken tokens[100];
+tinyToken *tokens = new tinyToken[100];
 
 //TODO modifiy Scanner function to return array of tokens
 void Scanner(string line) {
     static int state = START;
-    static int tokenIndex = 0;
     int index = 0;
+    string tokenType = "",tokenValue = "";
     int j = 0;
     while (line[index] != NULL) {
         switch (state) {
@@ -89,20 +89,27 @@ void Scanner(string line) {
                 while (isalpha(line[index]) | isdigit(line[index]))
                     index++;
                 state = START;
+                delete [] s;
                 break;
             }
                 //Ready To print
             case INOPERATION: {
+                tokenType = "";
+                tokenValue = "";
                 bool compoundOP = false;
                 if (isValidSymbole(line[index]) > 0) {
-                    cout << line[index];
+//                    cout << line[index];
+                    tokenValue = line[index];
                     if (line[index] == ':' || line[index] == '<' || line[index] == '>') {
                         if (line[index + 1] == '=') {
                             compoundOP = true;
-                            cout << '=';
+//                            cout << '=';
+                            tokenValue += '=';
                         }
                     }
-                    cout << ',' << SpecialSymbolsTokens[isValidSymbole(line[index])] << endl;
+//                    cout << ',' << SpecialSymbolsTokens[isValidSymbole(line[index])] << endl;
+                    tokenType = SpecialSymbolsTokens[isValidSymbole(line[index])];
+                    addToken(tokenType,tokenValue);
                 }
                 (compoundOP) ? index += 2 : index++;
                 state = START;
@@ -110,16 +117,21 @@ void Scanner(string line) {
             }
                 //Ready to print
             case INNUM:
+                tokenType = "number";
+                tokenValue = "";
                 //Accept floating point numbers ignoring a second decimal point if exists
                 bool isFloat = false;
                 while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
                     if (line[index] == '.') {
                         isFloat = true;
                     }
+                    tokenValue += line[index++];
+                    //don't do double icrementation if cout is enabled
                     //don't forget to increment the index after removing the cout
-                    cout << line[index++];
+//                    cout << line[index++];
                 }
-                cout << ",number\n";
+                addToken(tokenType, tokenValue);
+//                cout << ",number\n";
                 state = START;
                 break;
                 //TODO DONE state
@@ -171,11 +183,21 @@ int isValidSymbole(char &c) {
     return -1;
 }
 
-void addToken(string &type, string &value) {
+//TODO fix memory leak by not deallocating the temp pointer
+void addToken(const string &type, string &value) {
     static int tokenIndex = 0;
+    static int size = 100;
     tokens[tokenIndex].tokenType = type;
     tokens[tokenIndex].tokenValue = value;
     tokenIndex++;
+    //Automatically resize the tokens array if its full
+    if (tokenIndex >= size){
+        size = size * 2;
+        tinyToken *temp = new tinyToken[size];
+        memmove(temp, tokens, sizeof(tokens[0]) * tokenIndex);
+        tokens = new tinyToken[size * 2];
+        memmove(tokens,temp,sizeof(temp[0]) * tokenIndex);
+    }
 }
 
 int main(int argc, char *argv[]) {
