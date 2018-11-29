@@ -9,7 +9,7 @@
 
 #define NUM_RESERVED_KEYWORDS 8
 #define NUM_SPECIAL_SYMBOLS 11
-
+#define MAX_TOKENS_NUMBER 100
 using namespace std;
 
 typedef enum {
@@ -37,7 +37,7 @@ string *getWords(string line);
 
 void addToken(const string &type, string &value);
 
-tinyToken *tokens = new tinyToken[100];
+tinyToken *tokens = new tinyToken[MAX_TOKENS_NUMBER];
 
 //TODO modifiy Scanner function to return array of tokens
 void Scanner(string line) {
@@ -45,6 +45,7 @@ void Scanner(string line) {
     int index = 0;
     string tokenType = "", tokenValue = "";
     int j = 0;
+    string *s = getWords(line);
     while (line[index] != NULL) {
         switch (state) {
             case START:
@@ -64,32 +65,29 @@ void Scanner(string line) {
                     //indicates that we have operation like :=, +, -
                 else if (line[index] == '}')
                     index++;
-                else
+                else if (isValidSymbole(line[index]) != -1)
                     state = INOPERATION;
+                else
+                    state = ERROR;
                 break;
-
                 //Ready and Finalized
             case INCOMMENT:
                 while (line[index] != NULL && line.length() >= 1 && line[index] != '}')
                     index++;
-                if (line[index] == '}') //TODO handle if closing brace is missing
+                if (line[index] == '}')
                     state = START;
                 break;
             case INID: {
-                //Call Michael's Function
-                string *s = getWords(line);
-                cout << s[j] << ",";
+                cout << *(s + j) << ",";
                 if (isReserved(s[j])) {
                     cout << "Keyword" << endl;
                 } else {
                     cout << "Identifier" << endl;
                 }
                 j++;
-                //TODO accept mixed chars and letters identifiers
-                while (isalpha(line[index]) | isdigit(line[index]))
+                while (isalpha(line[index]) || isdigit(line[index]))
                     index++;
                 state = START;
-                delete[] s;
                 break;
             }
                 //Ready To print
@@ -137,26 +135,27 @@ void Scanner(string line) {
                 //TODO DONE state
                 //TODO ERROR state
         }
-
-
     }
-    j = 0;
+    delete[] s;
 }
 
 
 string *getWords(string line) {
     line = regex_replace(line, regex("\\{.*\\}"), "");
-    string *words = new string[line.length() + 1];
+    line = regex_replace(line, regex("[ \\t]+$"), "");
+    string *words = new string[line.length()];
     char *buffer = new char[line.length() + 1];
     strcpy(buffer, line.c_str());
     char *wordContext;
-    const char *wordSeparators = " +-=<();:=*01233456789";
+    const char *wordSeparators = " +-=<();:=*";
     char *word = strtok_r(buffer, wordSeparators, &wordContext);
     int i = 0;
     while (word) {
-        words[i] = word;
+        if (!isdigit(word[0]) && isValidSymbole(word[0]) == -1) {
+            words[i] = word;
+            i++;
+        }
         word = strtok_r(NULL, wordSeparators, &wordContext);
-        i++;
     }
     delete[] buffer;
     return words;
@@ -185,7 +184,7 @@ int isValidSymbole(char &c) {
 
 void addToken(const string &type, string &value) {
     static int tokenIndex = 0;
-    static int size = 10;
+    static int size = MAX_TOKENS_NUMBER;
     tokens[tokenIndex].tokenType = type;
     tokens[tokenIndex].tokenValue = value;
     tokenIndex++;
