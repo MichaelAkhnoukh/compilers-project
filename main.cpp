@@ -39,104 +39,106 @@ void addToken(const string &type, string &value);
 
 tinyToken *tokens = new tinyToken[MAX_TOKENS_NUMBER];
 
-//TODO modifiy Scanner function to return array of tokens
-void Scanner(string line) {
-    static int state = START;
-    int index = 0;
-    string tokenType = "", tokenValue = "";
-    int j = 0;
-    string *s = getWords(line);
-    while (line[index] != NULL) {
-        switch (state) {
-            case START:
-                //As long As we have white spaces do nothing
-                while (line[index] != NULL && (line[index] == ' ' || line[index] == '\t'))
-                    index++;
-                //indicates comment beginning
-                if (line[index] == '{') {
-                    state = INCOMMENT;
-                }
-                    //indicates that we have either reserved keyword or identifier
-                else if (isalpha(line[index]))
-                    state = INID;
-                    //indicates that we have most segnificant bit of a number
-                else if (isdigit(line[index]))
-                    state = INNUM;
-                    //indicates that we have operation like :=, +, -
-                else if (line[index] == '}')
-                    index++;
-                else if (isValidSymbole(line[index]) != -1)
-                    state = INOPERATION;
-                else
-                    state = ERROR;
-                break;
-                //Ready and Finalized
-            case INCOMMENT:
-                while (line[index] != NULL && line.length() >= 1 && line[index] != '}')
-                    index++;
-                if (line[index] == '}')
+int numTokens = 0;
+
+void Scanner(ifstream &inFile) {
+    string line;
+    while(getline(inFile, line)){
+        static int state = START;
+        int index = 0;
+        string tokenType = "", tokenValue = "";
+        int j = 0;
+        string *s = getWords(line);
+        while (line[index] != NULL) {
+            switch (state) {
+                case START:
+                    //As long As we have white spaces do nothing
+                    while (line[index] != NULL && (line[index] == ' ' || line[index] == '\t'))
+                        index++;
+                    //indicates comment beginning
+                    if (line[index] == '{') {
+                        state = INCOMMENT;
+                    }
+                        //indicates that we have either reserved keyword or identifier
+                    else if (isalpha(line[index]))
+                        state = INID;
+                        //indicates that we have most segnificant bit of a number
+                    else if (isdigit(line[index]))
+                        state = INNUM;
+                        //indicates that we have operation like :=, +, -
+                    else if (line[index] == '}')
+                        index++;
+                    else if (isValidSymbole(line[index]) != -1)
+                        state = INOPERATION;
+                    else
+                        state = ERROR;
+                    break;
+                    //Ready and Finalized
+                case INCOMMENT:
+                    while (line[index] != NULL && line.length() >= 1 && line[index] != '}')
+                        index++;
+                    if (line[index] == '}')
+                        state = START;
+                    break;
+                case INID: {
+                    tokenType = "";
+                    tokenValue = "";
+                    tokenValue = *(s + j);
+                    if (isReserved(s[j])) {
+                        tokenType = "Keyword";
+                    } else {
+                        tokenType = "Identifier";
+                    }
+                    addToken(tokenType,tokenValue);
+                    j++;
+                    while (isalpha(line[index]) || isdigit(line[index]))
+                        index++;
                     state = START;
-                break;
-            case INID: {
-                cout << *(s + j) << ",";
-                if (isReserved(s[j])) {
-                    cout << "Keyword" << endl;
-                } else {
-                    cout << "Identifier" << endl;
+                    break;
                 }
-                j++;
-                while (isalpha(line[index]) || isdigit(line[index]))
-                    index++;
-                state = START;
-                break;
-            }
-                //Ready To print
-            case INOPERATION: {
-                tokenType = "";
-                tokenValue = "";
-                bool compoundOP = false;
-                if (isValidSymbole(line[index]) > 0) {
-//                    cout << line[index];
-                    tokenValue = line[index];
-                    if (line[index] == ':' || line[index] == '<' || line[index] == '>') {
-                        if (line[index + 1] == '=') {
-                            compoundOP = true;
-//                            cout << '=';
-                            tokenValue += '=';
+                    //Ready To print
+                case INOPERATION: {
+                    tokenType = "";
+                    tokenValue = "";
+                    bool compoundOP = false;
+                    if (isValidSymbole(line[index]) > 0) {
+                        tokenValue = line[index];
+                        if (line[index] == ':' || line[index] == '<' || line[index] == '>') {
+                            if (line[index + 1] == '=') {
+                                compoundOP = true;
+                                tokenValue += '=';
+                            }
                         }
+                        tokenType = SpecialSymbolsTokens[isValidSymbole(line[index])];
+                        addToken(tokenType, tokenValue);
                     }
-//                    cout << ',' << SpecialSymbolsTokens[isValidSymbole(line[index])] << endl;
-                    tokenType = SpecialSymbolsTokens[isValidSymbole(line[index])];
+                    (compoundOP) ? index += 2 : index++;
+                    state = START;
+                    break;
+                }
+                    //Ready to print
+                case INNUM:
+                    tokenType = "number";
+                    tokenValue = "";
+                    //Accept floating point numbers ignoring a second decimal point if exists
+                    bool isFloat = false;
+                    while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
+                        if (line[index] == '.') {
+                            isFloat = true;
+                        }
+                        tokenValue += line[index++];
+                        //don't do double incrementation if cout is enabled
+                        //don't forget to increment the index after removing the cout
+                    }
                     addToken(tokenType, tokenValue);
-                }
-                (compoundOP) ? index += 2 : index++;
-                state = START;
-                break;
-            }
-                //Ready to print
-            case INNUM:
-                tokenType = "number";
-                tokenValue = "";
-                //Accept floating point numbers ignoring a second decimal point if exists
-                bool isFloat = false;
-                while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
-                    if (line[index] == '.') {
-                        isFloat = true;
-                    }
-                    tokenValue += line[index++];
-                    //don't do double icrementation if cout is enabled
-                    //don't forget to increment the index after removing the cout
-//                    cout << line[index++];
-                }
-                addToken(tokenType, tokenValue);
-//                cout << ",number\n";
-                state = START;
-                break;
+                    state = START;
+                    break;
                 //TODO DONE state
                 //TODO ERROR state
+            }
         }
+        delete[] s;
     }
-    delete[] s;
 }
 
 
@@ -198,14 +200,16 @@ void addToken(const string &type, string &value) {
         copy(temp, temp + (size / 2), tokens);
         delete[] temp;
     }
+    numTokens++;
 }
 
 int main(int argc, char *argv[]) {
-//    freopen("output.txt","w",stdout);
+    freopen("output.txt","w",stdout);
     ifstream inFile("./TinySample.txt");
-    string str;
-    while (getline(inFile, str)) {
-        Scanner(str);
+    Scanner(inFile);
+    for (int i = 0; i < numTokens; ++i) {
+        cout << tokens[i].tokenValue << " , ";
+        cout << tokens[i].tokenType << endl;
     }
 //    cout << "\nEnter 'q' to exit:";
 //    while (getchar() != 'q');
