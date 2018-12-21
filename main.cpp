@@ -14,11 +14,12 @@ using namespace std;
 
 typedef enum {
     START, INCOMMENT, INID, INOPERATION, INNUM, DONE, ERROR
-} States;
+} state;
 
-typedef struct {
+typedef struct tinyToken {
     string tokenValue;
     string tokenType;
+    struct tinyToken *next;
 } tinyToken;
 
 string ReservedKeywords[NUM_RESERVED_KEYWORDS] = {"if", "then", "else", "end", "repeat", "until", "read", "write"};
@@ -39,11 +40,9 @@ void addToken(const string &type, string &value);
 
 tinyToken *tokens = new tinyToken[MAX_TOKENS_NUMBER];
 
-int numTokens = 0;
-
-void Scanner(ifstream &inFile) {
+state Scanner(ifstream &inFile) {
     string line;
-    while(getline(inFile, line)){
+    while (getline(inFile, line)) {
         static int state = START;
         int index = 0;
         string tokenType = "", tokenValue = "";
@@ -71,7 +70,7 @@ void Scanner(ifstream &inFile) {
                     else if (isValidSymbole(line[index]) != -1)
                         state = INOPERATION;
                     else
-                        state = ERROR;
+                        return ERROR;
                     break;
                     //Ready and Finalized
                 case INCOMMENT:
@@ -82,14 +81,13 @@ void Scanner(ifstream &inFile) {
                     break;
                 case INID: {
                     tokenType = "";
-                    tokenValue = "";
                     tokenValue = *(s + j);
                     if (isReserved(s[j])) {
                         tokenType = "Keyword";
                     } else {
                         tokenType = "Identifier";
                     }
-                    addToken(tokenType,tokenValue);
+                    addToken(tokenType, tokenValue);
                     j++;
                     while (isalpha(line[index]) || isdigit(line[index]))
                         index++;
@@ -133,12 +131,13 @@ void Scanner(ifstream &inFile) {
                     addToken(tokenType, tokenValue);
                     state = START;
                     break;
-                //TODO DONE state
-                //TODO ERROR state
+                    //TODO DONE state
+                    //TODO ERROR state
             }
         }
         delete[] s;
     }
+    return DONE;
 }
 
 
@@ -189,6 +188,10 @@ void addToken(const string &type, string &value) {
     static int size = MAX_TOKENS_NUMBER;
     tokens[tokenIndex].tokenType = type;
     tokens[tokenIndex].tokenValue = value;
+    tokens[tokenIndex].next = NULL;
+    if (tokenIndex <= size) {
+        tokens[tokenIndex].next = &tokens[tokenIndex + 1];
+    }
     tokenIndex++;
     //Automatically resize the tokens array if its full
     if (tokenIndex >= size) {
@@ -200,16 +203,17 @@ void addToken(const string &type, string &value) {
         copy(temp, temp + (size / 2), tokens);
         delete[] temp;
     }
-    numTokens++;
 }
 
 int main(int argc, char *argv[]) {
-    freopen("output.txt","w",stdout);
+    freopen("output.txt", "w", stdout);
     ifstream inFile("./TinySample.txt");
     Scanner(inFile);
-    for (int i = 0; i < numTokens; ++i) {
+    int i = 0;
+    while (tokens[i].next) {
         cout << tokens[i].tokenValue << " , ";
         cout << tokens[i].tokenType << endl;
+        i++;
     }
 //    cout << "\nEnter 'q' to exit:";
 //    while (getchar() != 'q');
