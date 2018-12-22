@@ -1,0 +1,6 @@
+cmake-build-*
+.idea
+CMakeLists.txt
+compilers_project
+*.vcxproj.*
+Debug
