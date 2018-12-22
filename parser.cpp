@@ -19,6 +19,14 @@ short term() {
 	return 1;
 }
 
+short exp() {
+	while (simple_exp()) {
+		if (!comparison_op() || !simple_exp())
+			return 0;
+	}
+	return 1;
+}
+
 short simple_exp() {
 	while (term()) {
 		if (!add_op())
@@ -27,13 +35,7 @@ short simple_exp() {
 	return 1;
 }
 
-short exp() {
-	while (simple_exp()) {
-		if (!comparison_op() || !simple_exp())
-			return 0;
-	}
-	return 1;
-}
+
 
 void printnexttoken() {
 	token* temp = get_next_token();
@@ -55,26 +57,30 @@ short comparison_op() {
 }
 
 short mul_op() {
-	if (match("*") || match("/"))
+	if (match("*"))
+		return 1;
+	else if (match("/"))
 		return 1;
 	return 0;
 }
 
 short add_op() {
-	if (match("+") || match("-"))
+	if (match("+"))
+		return 1;
+	else if(match("-"))
 		return 1;
 	return 0;
 }
-
+//uses the linked list
 short match(const char* ch) {
-	token* temp = get_next_token();
+	tokens* temp = get_next_token();
 	if (!strcmp(temp->value, ch)) {
 		return 1;
 	}
 	set_next_token(temp);
 	return 0;
 }
-
+//uses the linked list
 short number() {
 	token* temp = get_next_token();
 	if (temp->type == NUMBER) {
@@ -93,7 +99,7 @@ short factor() {
 		return 1;
 	return 0;
 }
-
+//uses the linked list
 short end_of_file() {
 	tokens* temp = get_next_token();
 	if (temp->type == _EOF) {
@@ -103,7 +109,7 @@ short end_of_file() {
 	set_next_token(temp);
 	return 0;
 }
-
+//uses the linked list
 short assig_op() {
 	token* temp = get_next_token();
 	if (temp->type == ASSIG_OP) {
@@ -114,13 +120,15 @@ short assig_op() {
 }
 
 short assign_stmt() {
-	if (factor() && assig_op() && factor()) {
+	if (identifier() && assig_op() && exp()) {
 		return 1;
 	}
 	return 0;
 }
 
 short if_stmt() {
+	if ((match("if") && exp() && match("then") && stmt_sequence() && match("end")));
+	else if (match("if") && exp() && match("then") && stmt_sequence() && match("else") && stmt_sequence() && match("end"));
 	return 0;
 }
 
@@ -155,7 +163,7 @@ short write_stmt(TreeNode *Parent) {
 }
 
 short statement(TreeNode *Parent) {
-	if (assign_stmt(Parent) || repeat_stmt(Parent) || if_stmt(Parent) || read_stmt(Parent) || write_stmt(Parent)) {
+	if (if_stmt(Parent) || repeat_stmt(Parent) || assign_stmt(Parent) || read_stmt(Parent) || write_stmt(Parent)) {
 		return 1;
 	}
 	else if (end_of_file()) {
