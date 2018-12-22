@@ -1,16 +1,15 @@
 #include "scanner.h"
 
 string ReservedKeywords[NUM_RESERVED_KEYWORDS] = {"if", "then", "else", "end", "repeat", "until", "read", "write"};
-
 char SpecialSymbols[NUM_SPECIAL_SYMBOLS] = {'+', '-', '*', '/', '<', '>', '(', ')', ';', ':', '='};
-
 string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "Multiply", "Division", "LessThan",
                                                     "GreaterThan", "OpenBracket", "CloseBracket", "EOL", "Assignment",
                                                     "Comparison"};
-tinyToken *tokens = new tinyToken[MAX_TOKENS_NUMBER];
+tinyToken *rootToken = NULL;
 
 state Scanner(ifstream &inFile) {
     string line;
+    tinyToken *head = new tinyToken;
     while (getline(inFile, line)) {
         static int state = START;
         int index = 0;
@@ -56,7 +55,7 @@ state Scanner(ifstream &inFile) {
                     } else {
                         tokenType = "Identifier";
                     }
-                    addToken(tokenType, tokenValue);
+                    head = addToken(head, tokenType, tokenValue);
                     j++;
                     while (isalpha(line[index]) || isdigit(line[index]))
                         index++;
@@ -77,7 +76,7 @@ state Scanner(ifstream &inFile) {
                             }
                         }
                         tokenType = SpecialSymbolsTokens[isValidSymbole(line[index])];
-                        addToken(tokenType, tokenValue);
+                        head = addToken(head, tokenType, tokenValue);
                     }
                     (compoundOP) ? index += 2 : index++;
                     state = START;
@@ -97,7 +96,7 @@ state Scanner(ifstream &inFile) {
                         //don't do double incrementation if cout is enabled
                         //don't forget to increment the index after removing the cout
                     }
-                    addToken(tokenType, tokenValue);
+                    head = addToken(head, tokenType, tokenValue);
                     state = START;
                     break;
                     //TODO DONE state
@@ -152,24 +151,20 @@ int isValidSymbole(char &c) {
     return -1;
 }
 
-void addToken(const string &type, string &value) {
-    static int tokenIndex = 0;
-    static int size = MAX_TOKENS_NUMBER;
-    tokens[tokenIndex].tokenType = type;
-    tokens[tokenIndex].tokenValue = value;
-    tokens[tokenIndex].next = NULL;
-    if (tokenIndex <= size) {
-        tokens[tokenIndex].next = &tokens[tokenIndex + 1];
+tinyToken *addToken(tinyToken *head, const string &type, string &value) {
+
+    if(rootToken == NULL) {
+        rootToken = head;
     }
-    tokenIndex++;
-    //Automatically resize the tokens array if its full
-    if (tokenIndex >= size) {
-        size = size * 2;
-        tinyToken *temp = new tinyToken[size];
-        copy(tokens, tokens + (size / 2), temp);
-        delete[] tokens;
-        tokens = new tinyToken[size * 2];
-        copy(temp, temp + (size / 2), tokens);
-        delete[] temp;
-    }
+
+    tinyToken *token = new tinyToken;
+    token->tokenType = type;
+    token->tokenValue = value;
+    head->next = token;
+
+    return token;
+}
+
+tinyToken *get_root_token(){
+    return rootToken->next;
 }

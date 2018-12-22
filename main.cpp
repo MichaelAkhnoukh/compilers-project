@@ -7,14 +7,13 @@ int main(int argc, char *argv[]) {
     ifstream inFile("./TinySample.txt");
     Scanner(inFile);
     inFile.close();
-    int i = 0;
-    while (tokens[i].next) {
-        cout << tokens[i].tokenValue << " , ";
-        cout << tokens[i].tokenType << endl;
-        i++;
+
+    tinyToken *next = get_root_token();
+    while (next) {
+        cout << next->tokenValue << "," << next->tokenType << endl;
+        next = next->next;
     }
 //    cout << "\nEnter 'q' to exit:";
 //    while (getchar() != 'q');
     //cin.ignore();
-    delete[] tokens;
 }

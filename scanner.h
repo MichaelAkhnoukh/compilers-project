@@ -7,7 +7,6 @@
 
 #define NUM_RESERVED_KEYWORDS 8
 #define NUM_SPECIAL_SYMBOLS 11
-#define MAX_TOKENS_NUMBER 100
 
 using namespace std;
 
@@ -18,7 +17,7 @@ typedef enum {
 typedef struct tinyToken {
     string tokenValue;
     string tokenType;
-    struct tinyToken *next;
+    struct tinyToken *next = NULL;
 } tinyToken;
 
 bool isReserved(string &s);
@@ -27,11 +26,11 @@ int isValidSymbole(char &c);
 
 string *getWords(string line);
 
-void addToken(const string &type, string &value);
+tinyToken *addToken(tinyToken *head,const string &type, string &value);
 
 state Scanner(ifstream &inFile);
 
-extern tinyToken *tokens;
+tinyToken *get_root_token();
 
 extern string ReservedKeywords[NUM_RESERVED_KEYWORDS];
 
