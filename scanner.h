@@ -32,6 +32,10 @@ state Scanner(ifstream &inFile);
 
 tinyToken *get_root_token();
 
+tinyToken * get_next_token();
+
+void set_next_token(tinyToken * t);
+
 extern string ReservedKeywords[NUM_RESERVED_KEYWORDS];
 
 extern char SpecialSymbols[NUM_SPECIAL_SYMBOLS];

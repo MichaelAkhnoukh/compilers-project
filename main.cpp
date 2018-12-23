@@ -1,5 +1,6 @@
 #include <iostream>
 #include "scanner.h"
+#include "parser.h"
 #include <cstdio>
 
 int main(int argc, char *argv[]) {
@@ -9,10 +10,12 @@ int main(int argc, char *argv[]) {
     inFile.close();
 
     tinyToken *next = get_root_token();
-    while (next) {
-        cout << next->tokenValue << "," << next->tokenType << endl;
-        next = next->next;
-    }
+//    while (next) {
+//        cout << next->tokenValue << "," << next->tokenType << endl;
+//        next = next->next;
+//    }
+    program();
+
 //    cout << "\nEnter 'q' to exit:";
 //    while (getchar() != 'q');
     //cin.ignore();

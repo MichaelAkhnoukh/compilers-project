@@ -1,11 +1,14 @@
 #include "scanner.h"
+#include <iostream>
 
+using namespace std;
 string ReservedKeywords[NUM_RESERVED_KEYWORDS] = {"if", "then", "else", "end", "repeat", "until", "read", "write"};
 char SpecialSymbols[NUM_SPECIAL_SYMBOLS] = {'+', '-', '*', '/', '<', '>', '(', ')', ';', ':', '='};
 string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "Multiply", "Division", "LessThan",
                                                     "GreaterThan", "OpenBracket", "CloseBracket", "EOL", "Assignment",
                                                     "Comparison"};
 tinyToken *rootToken = NULL;
+tinyToken *next_token ;
 
 state Scanner(ifstream &inFile) {
     string line;
@@ -67,7 +70,7 @@ state Scanner(ifstream &inFile) {
                     tokenType = "";
                     tokenValue = "";
                     bool compoundOP = false;
-                    if (isValidSymbole(line[index]) > 0) {
+                    if (isValidSymbole(line[index]) != -1) {
                         tokenValue = line[index];
                         if (line[index] == ':' || line[index] == '<' || line[index] == '>') {
                             if (line[index + 1] == '=') {
@@ -105,6 +108,9 @@ state Scanner(ifstream &inFile) {
         }
         delete[] s;
     }
+    string eof = "EOF";
+    addToken(head,eof,eof);
+    next_token = rootToken;
     return DONE;
 }
 
@@ -167,4 +173,14 @@ tinyToken *addToken(tinyToken *head, const string &type, string &value) {
 
 tinyToken *get_root_token(){
     return rootToken->next;
+}
+
+tinyToken * get_next_token(){
+    tinyToken * temp = next_token;
+    next_token = next_token->next;
+    return temp;
+}
+
+void set_next_token(tinyToken * t){
+    next_token = t;
 }

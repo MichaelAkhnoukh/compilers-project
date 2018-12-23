@@ -1,12 +1,19 @@
-{ Sample program in TINY language computes factorial
-}
-
-read x;   {input an integer }
-if 0< x   then     {  don't compute if x <=0}
-fact  :=1;
+x :=2;
+y :=3;
+z :=5;
+a := x + y + z;
+if z < 8 then
 repeat
-fact  := fact *  x;
-x  := x-1
-until  x  =0;
-write  fact   {  output  factorial of x }
+a := a *2 ;
+z := z-1
+until z=0;
+wrtie a
+else
+read b;
+if b = -1 then
+write b*(x-y)
+else
+write a
 end
+end;
+write z
