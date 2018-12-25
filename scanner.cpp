@@ -8,7 +8,7 @@ string SpecialSymbolsTokens[NUM_SPECIAL_SYMBOLS] = {"Addition", "Subtraction", "
                                                     "GreaterThan", "OpenBracket", "CloseBracket", "EOL", "Assignment",
                                                     "Comparison"};
 tinyToken *rootToken = NULL;
-tinyToken *next_token ;
+tinyToken *next_token;
 
 state Scanner(ifstream &inFile) {
     string line;
@@ -33,7 +33,9 @@ state Scanner(ifstream &inFile) {
                     else if (isalpha(line[index]))
                         state = INID;
                         //indicates that we have most segnificant bit of a number
-                    else if (isdigit(line[index]))
+                    else if (isdigit(line[index]) ||
+                             (line[index] == '-' && (head->tokenValue == ":=" || head->tokenValue == "=") &&
+                              isdigit(line[index + 1])))
                         state = INNUM;
                         //indicates that we have operation like :=, +, -
                     else if (line[index] == '}')
@@ -54,9 +56,9 @@ state Scanner(ifstream &inFile) {
                     tokenType = "";
                     tokenValue = *(s + j);
                     if (isReserved(s[j])) {
-                        tokenType = "Keyword";
+                        tokenType = s[j];
                     } else {
-                        tokenType = "Identifier";
+                        tokenType = "identifier";
                     }
                     head = addToken(head, tokenType, tokenValue);
                     j++;
@@ -91,7 +93,9 @@ state Scanner(ifstream &inFile) {
                     tokenValue = "";
                     //Accept floating point numbers ignoring a second decimal point if exists
                     bool isFloat = false;
-                    while (line[index] != NULL && (isdigit(line[index]) || (line[index] == '.') && isFloat == false)) {
+                    bool isNegative = false;
+                    while (line[index] != NULL &&
+                           (isdigit(line[index]) || ((line[index] == '.') && isFloat == false) || line[index] == '-')) {
                         if (line[index] == '.') {
                             isFloat = true;
                         }
@@ -108,8 +112,8 @@ state Scanner(ifstream &inFile) {
         }
         delete[] s;
     }
-    string eof = "EOF";
-    addToken(head,eof,eof);
+//    string eof = "EOF";
+//    addToken(head,eof,eof);
     next_token = rootToken;
     return DONE;
 }
@@ -159,7 +163,7 @@ int isValidSymbole(char &c) {
 
 tinyToken *addToken(tinyToken *head, const string &type, string &value) {
 
-    if(rootToken == NULL) {
+    if (rootToken == NULL) {
         rootToken = head;
     }
 
@@ -171,16 +175,16 @@ tinyToken *addToken(tinyToken *head, const string &type, string &value) {
     return token;
 }
 
-tinyToken *get_root_token(){
+tinyToken *get_root_token() {
     return rootToken->next;
 }
 
-tinyToken * get_next_token(){
-    tinyToken * temp = next_token;
+tinyToken *get_next_token() {
+    tinyToken *temp = next_token;
     next_token = next_token->next;
     return temp;
 }
 
-void set_next_token(tinyToken * t){
+void set_next_token(tinyToken *t) {
     next_token = t;
 }
